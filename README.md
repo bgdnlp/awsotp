@@ -24,7 +24,10 @@ When a new MFA virtual device is being set up in AWS, a screen pops up, like
 the one below. What we need is the 'secret key for manual configuration'.
 The QR code actually translates into an otpauth URL containing that secret key.
 
-![MFA Activation](http://www.neant.ro/wp-content/uploads/2016/03/aws_mfa_activation-1.png)
+<img 
+src="http://www.neant.ro/wp-content/uploads/2016/03/aws_mfa_activation-1.png" 
+alt="MFA Activation" style="width: 900px;"
+/>
 
 The config file (~/.aws/credentials) section (profile) for the above image 
 should looks similar to:
