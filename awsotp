@@ -1,0 +1,95 @@
+#!/usr/bin/env python3
+'''
+Script to generate on the desktop the same code that would be generated
+by Google Authenticator. It looks for the value of 'mfa_secret' in the
+$HOME/.aws/credentials file and prints out the corresponding 6 character
+one time password. It also places the password in the clipboard.
+
+Needs onetimepass and pyperclip modules. Both of them can be installed
+using pip. Both are on GitHub.
+Onetimepass can be found here: https://github.com/tadeck/onetimepass
+Pyperclip can be found here: https://github.com/asweigart/pyperclip
+
+Python 2/3 compatible, tested on OS X
+'''
+from __future__ import unicode_literals
+from __future__ import print_function
+
+import argparse
+try:
+    import configparser
+except ImportError:
+    import ConfigParser as configparser
+from os import path
+from gc import collect as gc_collect
+
+# onetimepass: https://github.com/tadeck/onetimepass
+from onetimepass import get_totp
+# pyperclip: https://github.com/asweigart/pyperclip
+import pyperclip
+
+
+def main():
+    optparser = argparse.ArgumentParser(
+            description="generate a one-time-password for AWS")
+    optparser.add_argument("-p", "--profile", 
+            help="profile name in credentials file, defaults to 'default'")
+    config_path = path.join(path.expanduser('~'),'.aws','credentials')
+    optparser.add_argument("-c", "--config", 
+            help="config file, defaults to {}".format(config_path))
+    args = optparser.parse_args()
+
+    if args.config and not path.isfile(args.config):
+        print('No such file: ' + args.config)
+        exit(1)
+   
+    code = get_otp(config=args.config, profile=args.profile)
+    pyperclip.copy(code)
+    print(code)
+    
+
+def get_otp(config=None, profile=None, force_gc=True):
+    '''Returns OTP (Google Authenticator) code
+
+    Gets the value of 'mfa_secret' from the specified profile in the
+    credentials file and returns the corresponding time-based code. This 
+    is the same code that would be returned by Google's authenticator
+
+    Args:
+        config (str):
+            Full path to AWS credentials file (http://amzn.to/1MiS96A).
+            Defaults to "$HOME/.aws/credentials" (cross-platform) if unset
+        profile (str):
+            Profile name in the credentials file. If not specified,
+            'default' will be used.
+        force_gc (boolean):
+            If True (default) it will force garbage collection ASAP.
+            Clears the memory of secrets, as a security measure.
+
+    Returns:
+        Six characters string
+    '''
+    if not config:
+        config = path.join(path.expanduser('~'),'.aws','credentials')
+    if not profile:
+        profile = 'default'
+
+    credentials = configparser.ConfigParser()
+    credentials.read(config)
+    if not credentials.has_option(profile, 'mfa_secret'):
+        mfa_secret = ''
+        code = ''
+    else:
+        mfa_secret = credentials.get(profile, 'mfa_secret')
+        code = get_totp(mfa_secret, as_string=True).decode('utf-8')
+    del credentials
+    del mfa_secret
+    if force_gc:
+        gc_collect()
+
+    return code
+
+
+if __name__ == "__main__":
+    # execute only if run as a script
+    main()
