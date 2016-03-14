@@ -26,7 +26,7 @@ The QR code actually translates into an otpauth URL containing that secret key.
 
 <img 
 src="http://www.neant.ro/wp-content/uploads/2016/03/aws_mfa_activation-1.png" 
-alt="MFA Activation" style="width: 900px;"
+alt="MFA Activation" width="900" height="747"
 />
 
 The config file (~/.aws/credentials) section (profile) for the above image 
