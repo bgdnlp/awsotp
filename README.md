@@ -7,7 +7,15 @@ placed into the clipboard.
 
 It takes `--profile` and `--config` as arguments, so although it uses the AWS
 credentials file by default, it can work with any .ini style configuration.
+All it needs is a file like:
+```
+[account1]
+mfa_secret = SECRETOFACCOUNT1
 
+[account2]
+mfa_secret = SECONDSECRET
+
+```
 Compatible with both Python 2 and 3.
 
 ### Setup
@@ -39,3 +47,15 @@ aws_secret_access_key = OhYesOfCourseThisIsARealSecretStringHere
 mfa_secret = B25ARDS3XOTDLKVYBSCQJELZE3Z5DGJV7NIBBRXHUD3TKK5QVEP53JW5US4EYSXH
 ```
 
+The config file and Google Authenticator (or whatever else) on the phone can
+be set up at the same time, so that there's a backup in case one of them
+isn't working.
+
+The QR code can be generated later using any QR generator. The string that
+that should be fed to the generator for the mfa_secret above is 
+`otpauth://totp/username@awsaccount?secret=B25ARDS3XOTDLKVYBSCQJELZE3Z5DGJV7NIBBRXHUD3TKK5QVEP53JW5US4EYSXH`.
+Where `username@awsaccount` is going to be interpreted by Google Authenticator
+as the name to give to the code.
+
+I don't know of a way to do the reverse, extract the code from an
+already set up Google Authenticator.
